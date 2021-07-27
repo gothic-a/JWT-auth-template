@@ -15,9 +15,12 @@ connectDB()
 
 const app = express()
 
+app.use(cors({
+    credentials: true,
+    origin: process.env.CLIENT_URL,
+}))
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
 if(process.env.MODE === 'development') app.use(morgan('dev'))
 
 app.get('/', (req, res) => res.send('MERN JWT auth template'))

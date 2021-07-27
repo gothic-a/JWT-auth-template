@@ -9,13 +9,15 @@ const protect = (req, res, next) => {
         if(!accessToken || !authorizationHeader) throw ApiError.UnauthorizedError()
 
         const userData = TokenService.validateAccessToken(accessToken)
-        if(!userData) throw ApiError.UnauthorizedError()
-
         req.user = userData
 
         next()
     } catch(e) {
-        return next(ApiError.UnauthorizedError())
+        if(e.message === 'jwt expired') {
+            next(ApiError.TokenExpired())
+        } else {
+            next(ApiError.UnauthorizedError())
+        }
     }
 }
 

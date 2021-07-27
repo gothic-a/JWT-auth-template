@@ -69,23 +69,32 @@ class UserService {
     }
 
     async refresh(refreshToken) {
-        if(!refreshToken) throw ApiError.UnauthorizedError()
+        try {
+           if(!refreshToken) throw ApiError.UnauthorizedError()
 
-        const userData = TokenService.validateRefreshToken(refreshToken)
-        const tokenFromDB = await TokenService.findToken(refreshToken)
+            const userData = TokenService.validateRefreshToken(refreshToken)
+            const tokenFromDB = await TokenService.findToken(refreshToken)
 
-        if(!userData && !tokenFromDB) throw ApiError.UnauthorizedError()
+            if(!tokenFromDB) throw ApiError.UnauthorizedError()
 
-        const user = await UserModel.findById(userData.id)
-        const userDto = new UserDto(user)
+            const user = await UserModel.findById(userData.id)
+            const userDto = new UserDto(user)
 
-        const tokens = TokenService.generateToken({...userDto})
-        await TokenService.saveToken(userDto.id, tokens.refreshToken)
+            const tokens = TokenService.generateToken({...userDto})
+            await TokenService.saveToken(userDto.id, tokens.refreshToken)
 
-        return {
-            ...tokens,
-            user: userDto
+            return {
+                ...tokens,
+                user: userDto
+            } 
+        } catch(e) {
+            if(e.message === 'jwt expired') {
+                await TokenService.removeToken(refreshToken)
+                throw ApiError.TokenExpired()
+            }
+            throw ApiError.UnauthorizedError()
         }
+        
     }
 
     async getAllUsers() {
