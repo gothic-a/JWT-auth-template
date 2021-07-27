@@ -2,7 +2,6 @@ import api from '../http/'
 
 class AuthService {
     static async login(email, password) {
-        console.log(api)
         return api.post('/users/login', {email, password})
     }
 

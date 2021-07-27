@@ -13,12 +13,11 @@ import axios from 'axios'
 export const login = (email, password) => async (dispatch) => {
     try {
         dispatch({type: USER_LOGIN_REQUEST})
-        console.log(AuthService)
         const { data } = await AuthService.login(email, password) 
         localStorage.setItem('token', data.accessToken)
         dispatch({type: USER_LOGIN_SUCCESS, payload: data})
     } catch(e) {
-        dispatch({type: USER_LOGIN_FAIL, payload: e})
+        dispatch({type: USER_LOGIN_FAIL, payload: e.response.data.message})
     }
 } 
 
@@ -45,6 +44,7 @@ export const logout = () => async (dispatch) => {
 
 export const checkAuth = () => async (dispatch) => {
     try {
+        dispatch({type: USER_LOGIN_REQUEST})
         const { data } = await axios.get('http://localhost:5000/api/users/refresh', {withCredentials: true})
     
         localStorage.setItem('token', data.accessToken) 

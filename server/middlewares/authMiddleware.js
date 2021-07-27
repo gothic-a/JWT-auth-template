@@ -3,7 +3,9 @@ import TokenService from '../service/tokenService.js'
 
 const protect = (req, res, next) => {
     try {
-        const authorizationHeader = req.headers.authorization        
+        const authorizationHeader = req.headers.authorization   
+        
+        console.log(authorizationHeader)
         const accessToken = authorizationHeader.split(' ')[1]
 
         if(!accessToken || !authorizationHeader) throw ApiError.UnauthorizedError()
